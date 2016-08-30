@@ -20,3 +20,6 @@ An Equipment set manager
   * So inner function is called twice, and causes "You can't do that right now." message.
   * Hoping Blizzard to fix or add corresponding event.
 
+
+[Curse Link](https://mods.curse.com/addons/wow/gearup-upne/ )
+[WowAce Project](https://www.wowace.com/addons/gearup-upne/ )

@@ -123,6 +123,7 @@ end
 
 -- Event fired twice. Causes "You can't do that right now." error
 function GearUp:OnSpecChange(event, after, before)
+	if InCombatLockdown() then return end	-- Level up causes same event
 	local currentSpec = GetSpecialization()
 	local setname = self.specs[currentSpec].name
 
