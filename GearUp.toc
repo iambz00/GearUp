@@ -1,22 +1,17 @@
-## Interface: 70000
+## Interface: 30400
 ## Title: GearUp
 ## Author: Upne
-## Version: v0.9b
-## Notes: Equipment swap on spec change, Bind key to equipment sets
-## Notes-koKR: 전문화 변경 시 장비셋 교체, 장비셋에 단축키 지정 등
-## OptionalDeps: Ace3
-## SavedVariables: GearUpDB
+## Version: 1.0.0
+## Notes: Light equipment set manager
+## Notes-koKR: 장비관리자 쉬운 사용
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3
 
 #@no-lib-strip@
-LibStub\LibStub.lua
-CallbackHandler-1.0\CallbackHandler-1.0.xml
-AceAddon-3.0\AceAddon-3.0.xml
-AceEvent-3.0\AceEvent-3.0.xml
-AceDB-3.0\AceDB-3.0.xml
-AceDBOptions-3.0\AceDBOptions-3.0.xml
-AceLocale-3.0\AceLocale-3.0.xml
-AceGUI-3.0\AceGUI-3.0.xml
-AceConfig-3.0\AceConfig-3.0.xml
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+Libs\AceLocale-3.0\AceLocale-3.0.xml
 #@end-no-lib-strip@
 
 Localization\localization-enUS.lua
