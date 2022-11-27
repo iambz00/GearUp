@@ -100,7 +100,7 @@ function GearUp:GetEquipmentSetInfo(setID, missingColor)
 --  name, icon, setID, isEquipped, numItems, equippedItems, availableItems, missingItems, ignoredSlots = C_EquipmentSet.GetEquipmentSetInfo(index)
     if setID then
         local name, _, _, isEquipped, _, _, _, missingItems = C_EquipmentSet.GetEquipmentSetInfo(setID)
-        if missingColor and missingItems > 0 then
+        if missingColor and missingItems and missingItems > 0 then
             name = "|cffe55451"..name.."|r"
         end
         return name, isEquipped, missingItems
@@ -117,14 +117,16 @@ function GearUp:DropMenu(pending)
     end
     for i = 0, GetNumEquipmentSets()-1 do
         local name, isEquipped = self:GetEquipmentSetInfo(i, true)
-        table.insert(menu, {
-            text = name,
-            value = i,
-            checked = isEquipped,
-            arg1 = i,
-            registerForRightClick = true,
-            func = function(_, setID) GearUp:EquipSet(setID) end
-        })
+        if name then
+            table.insert(menu, {
+                text = name,
+                value = i,
+                checked = isEquipped,
+                arg1 = i,
+                registerForRightClick = true,
+                func = function(_, setID) GearUp:EquipSet(setID) end
+            })
+        end
     end
     EasyMenu(menu, self.ui.text, self.ui.text, 0, 8)
 end
