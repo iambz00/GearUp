@@ -150,6 +150,7 @@ function GearUp:OnSwapFinish(event, success, setID)
     if success then
         p(L["[%1] Equipped"](setName))
         self:RefreshUI(setName)
+        self.currentSet = setID
     else
         pe(L["[%1] Failed"](setName))
     end

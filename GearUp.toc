@@ -1,7 +1,7 @@
 ## Interface: 30400
 ## Title: GearUp
 ## Author: Upne
-## Version: 1.1.0
+## Version: 1.1.1
 ## Notes: Light equipment set manager
 ## Notes-koKR: 장비관리자 쉬운 사용
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3
