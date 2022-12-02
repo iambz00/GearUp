@@ -36,7 +36,6 @@ function GearUp:OnInitialize()
         if C_EquipmentSet.GetNumEquipmentSets() > 0 then   -- Early call returns 0
             self.ticker:Cancel()
         end
-        self:EquipmentCheck()
         self:OnEquipSetChange()
     end, 5)
 end
@@ -91,14 +90,18 @@ function GearUp:InitUI()
     end)
 end
 
-function GearUp:GetEquipmentSetInfo(setID, missingColor)
---  name, icon, setID, isEquipped, numItems, equippedItems, availableItems, missingItems, ignoredSlots = C_EquipmentSet.GetEquipmentSetInfo(index)
+function GearUp:GetEquipmentSetInfo(setID, colorize)
+--  name, iconFileID, setID, isEquipped, numItems, numEquipped, numInInventory, numLost, numIgnored = C_EquipmentSet.GetEquipmentSetInfo(equipmentSetID)
     if setID then
-        local name, _, _, isEquipped, _, _, _, missingItems = C_EquipmentSet.GetEquipmentSetInfo(setID)
-        if missingColor and missingItems and missingItems > 0 then
-            name = "|cffe55451"..name.."|r"
+        local name, _, _, isEquipped, numItems, numEquipped, numInInventory, numLost = C_EquipmentSet.GetEquipmentSetInfo(setID)
+        if colorize and name then
+            if numLost > 0 then
+                name = "|cffe55451"..name.."|r"
+            elseif (numItems - numEquipped) > 0 and (numItems - numEquipped) < 3 then
+                name = "|cfff0f010"..name.."|r"
+            end
         end
-        return name, isEquipped, missingItems
+        return name, isEquipped, numLost, numItems, numEquipped
     end
 end
 
@@ -118,7 +121,7 @@ function GearUp:DropMenu()
         local name, isEquipped = self:GetEquipmentSetInfo(i, true)
         if name then
             local menu = {
-                text = name,
+                text = name:gsub("@","|cff666666@|r"),
                 value = i,
                 checked = isEquipped,
                 arg1 = i,
@@ -192,8 +195,8 @@ end
 
 function GearUp:RefreshUI(text)
     if text then
-        -- Blur leading '@'
-        self.ui.text:SetText("|cffcccccc"..text:gsub("^@","|c99cccccc@|r").."|r")
+        -- Blur '@'
+        self.ui.text:SetText("|cffcccccc"..text:gsub("@","|cff666666@|r").."|r")
     end
 end
 
@@ -210,7 +213,7 @@ function GearUp:ReservedJob(event, unit)
 end
 
 function GearUp:EquipSet(setID)
-    local setName, isEquipped, missingItems = self:GetEquipmentSetInfo(setID, true)
+    local setName, isEquipped, numLost, numItems, numEquipped  = self:GetEquipmentSetInfo(setID, true)
 
     if InCombatLockdown() then
         pw(L["[%1] Reserved"](setName))
@@ -231,14 +234,14 @@ function GearUp:EquipSet(setID)
 
     self.reserved = nil
 
-    if isEquipped then
+    if isEquipped and (numItems == numEquipped) then
         p(L["[%1] Already equipped"](setName))
         self:RefreshUI(setName)
     else
-        if missingItems > 0 then
-            pe(L["[%1] %2 items missing"](setName, missingItems))
+        if numLost > 0 then
+            pe(L["[%1] %2 items missing"](setName, numLost))
         end
-        self.currentSet = setID
+        --self.currentSet = setID
         C_EquipmentSet.UseEquipmentSet(setID)
     end
 end
@@ -253,14 +256,26 @@ function GearUp:EquipSetByName(setName)
 end
 
 function GearUp:EquipmentCheck()
+    local guessID
+    local guessMissing = 3
     for i = 0, NUM_MAX_EQUIPMENT_SETS-1 do
-        local _, isEquipped = self:GetEquipmentSetInfo(i)
+        local _, isEquipped, numLost, numItems, numEquipped = self:GetEquipmentSetInfo(i)
         if isEquipped then
             self.currentSet = i
             return i
+        else
+            -- If 1 or 2 items have changed but not saved, check it
+            if numItems and numEquipped and numItems > 10 then
+                local numUnequipped = numItems - numEquipped
+                if numUnequipped < guessMissing then
+                    guessID = i
+                    guessMissing = numUnequipped
+                end
+            end
         end
     end
-    return nil
+    self.currentSet = guessID
+    return guessID
 end
 
 function GearUp:OnSpecChange(event, curr, prev)
