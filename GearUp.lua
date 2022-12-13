@@ -20,7 +20,29 @@ StaticPopupDialogs["GEARUP_SAVE_EQUIPMENTSET"] = {
     text = "%s",
     button1 = ACCEPT,
     button2 = CANCEL,
-    OnAccept = function() GearUp:SaveEquipSet() end
+    OnAccept = function() GearUp:SaveEquipSet() end,
+    enterClicksFirstButton = true,
+    hideOnEscape = true,
+}
+
+StaticPopupDialogs["GEARUP_CREATE_EQUIPMENTSET"] = {
+    text = L["Create set"],
+    button1 = ACCEPT,
+    button2 = CANCEL,
+    hasEditBox = true,
+    maxLetters = 12,
+    OnAccept = function(self)
+        local setName = self.editBox:GetText()
+        if setName ~= "" then GearUp:CreateEquipSet(setName) end
+    end,
+    EditBoxOnEnterPressed = function(editBox)
+        local setName = editBox:GetText()
+        if setName ~= "" then GearUp:CreateEquipSet(setName) end
+        editBox:GetParent():Hide()
+    end,
+    OnHide = function(self) self.editBox:SetText("") end,
+    EditBoxOnEscapePressed = function(editBox) editBox:GetParent():Hide() end,
+    --enterClicksFirstButton = true,
 }
 
 SLASH_GEARUP1 = "/geq"
@@ -73,8 +95,10 @@ function GearUp:InitUI()
     ui:SetScript("OnClick", function(s, btn)
         if btn == "LeftButton" and not IsShiftKeyDown() then
             GearUp:DropMenu()
-        elseif btn == "RightButton" then
-            if not InCombatLockdown() and GearUp.currentSet then
+        elseif btn == "RightButton" and not InCombatLockdown() then
+            if IsControlKeyDown() then
+                StaticPopup_Show("GEARUP_CREATE_EQUIPMENTSET")
+            elseif GearUp.currentSet then
                 local setName = GearUp:GetEquipmentSetInfo(GearUp.currentSet)
                 StaticPopup_Show("GEARUP_SAVE_EQUIPMENTSET", L["Save [%1]"](setName))
             end
@@ -151,11 +175,21 @@ function GearUp:DropMenu()
     EasyMenu(menuTable, self.ui.text, self.ui.text, 0, 8)
 end
 
+function GearUp:CreateEquipSet(setName)
+    if setName then  -- Default is Neck icon
+        C_EquipmentSet.CreateEquipmentSet(setName, GetInventoryItemTexture("player", INVSLOT_NECK))
+        -- IgnoreSlotForSave doesn't affect CreateEquipmentSet, so save again
+        self.currentSet = C_EquipmentSet.GetEquipmentSetID(setName)
+        self:SaveEquipSet()
+    end
+end
+
 function GearUp:SaveEquipSet()
+    C_EquipmentSet.IgnoreSlotForSave(INVSLOT_BODY)
+    C_EquipmentSet.IgnoreSlotForSave(INVSLOT_TABARD)
     if self.currentSet then
-        C_EquipmentSet.IgnoreSlotForSave(4)
-        C_EquipmentSet.IgnoreSlotForSave(19)
         C_EquipmentSet.SaveEquipmentSet(self.currentSet)
+        p(L["Save [%1]"](self:GetEquipmentSetInfo(self.currentSet)))
     end
 end
 
