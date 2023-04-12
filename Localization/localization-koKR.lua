@@ -29,3 +29,6 @@ L["Create set"]             = "새로운 장비셋 생성"
 L["Save [%1]"]              = function(setName) return "["..setName.."] 저장합니다" end
 L["Spec changed {%1} (%2)"] = function(specName, points) return "특성 변경 감지 {"..specName.."} ("..points.." 포인트)" end
 L["Switch Spec %1 {%2}"]    = function(specID, specName) return "Shift 클릭 시 "..specID.."번 특성 {"..specName.."} 변경" end
+
+L["Floating UI resized to"] = function(width, height) return "UI 크기 변경 "..width.."x"..height end
+L["/gconf Usage"]           = "/gconf 너비 높이  (기본값: 56 18)"

@@ -50,6 +50,19 @@ SlashCmdList["GEARUP"] = function(msg)
     GearUp:EquipSetByName(msg)
 end
 
+SLASH_GEARUPCONFIG1 = "/gconf"
+SlashCmdList["GEARUPCONFIG"] = function(msg)
+    local width, height = msg:match("(%d+)%s+(%d+)")
+    width, height = tonumber(width), tonumber(height)
+    if width and height then
+        GearUp.ui:SetWidth(width)
+        GearUp.ui:SetHeight(height)
+        p(L["Floating UI resized to"](width, height))
+    else
+        pw(L["/gconf Usage"])
+    end
+end
+
 function GearUp:OnInitialize()
     self:InitUI()
 
@@ -66,16 +79,18 @@ function GearUp:InitUI()
     local ui = CreateFrame("Button", self.name.."FloatingUI", UIParent, "BackdropTemplate")
     self.ui = ui
     ui:EnableMouse(true)
+    ui:SetMovable(true)
+    ui:SetResizable(true)
+    -- User resized override below width, height
     ui:SetWidth(56)
     ui:SetHeight(18)
-    ui:SetMovable(true)
     ui:SetBackdrop({
         bgFile = "Interface/TutorialFrame/TutorialFrameBackground",
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
         tile = true, tileSize = 8, edgeSize = 8,
         insets = { left = 2, right = 2, top = 2, bottom = 2 },
     })
-    ui:SetBackdropBorderColor(1,1,1,0.3)
+    ui:SetBackdropBorderColor(1, 1, 1, 0.3)
     ui:SetPoint("CENTER")
 
     ui.text = ui:CreateFontString()
