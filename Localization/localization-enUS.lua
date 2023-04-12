@@ -15,7 +15,7 @@ L["In combat"] = true
 L["Description"] = [[Shift-Drag: Move frame
  - Lef Click: Equip set(Hold Shift to Switch to according spec)
  - Right Click: Save set (Hold Ctrl to Create set)
- - If [@MainSpecName] set exists, equip automatically on spec switch.
+ - If [@MainSpecName] or [@SpecNumber] set exists, equip automatically on spec switch.
  - Ignore slots: Tabard, Shirt]]
 L["[%1] Already equipped"]  = function(setName) return "["..setName.."] Already equipped" end
 L["[%1] Equipped"]          = function(setName) return "["..setName.."] Equipped" end

@@ -15,7 +15,7 @@ L["In combat"] = "전투 중"
 L["Description"] = [[Shift+드래그: 프레임 이동
  - 좌클릭: 갈아입기 / Shift+좌클릭: 해당 특성으로 변경
  - 우클릭: 현재 장비셋 갱신 / Ctrl+우클릭: 새로운 장비셋 생성
- - [@주특성]셋이 있으면 특성 변경 시 자동 장착됩니다.
+ - [@주특성] 또는 [@특성번호] 셋이 있으면 특성 변경 시 자동 장착됩니다.
  - 저장 시 속옷, 휘장은 무시합니다.]]
 L["[%1] Already equipped"]  = function(setName) return "["..setName.."] 이미 장착 중" end
 L["[%1] Equipped"]          = function(setName) return "["..setName.."] 장착 완료" end

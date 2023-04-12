@@ -173,13 +173,13 @@ function GearUp:DropMenu()
                     end
                 end
             }
-            for i = 1, GetNumSpecGroups() do
-                if mainSpecs[i] then
-                    if string.match("@"..mainSpecs[i]:upper(), "^"..name:upper()) then
+            for j = 1, GetNumSpecGroups() do
+                if mainSpecs[j] then
+                    if string.match("@"..mainSpecs[j]:upper(), "^"..name:upper()) or string.match("@"..j, "^"..name:sub(1,2)) then
                         menu.tooltipTitle = name
-                        menu.tooltipText = L["Switch Spec %1 {%2}"](i, mainSpecs[i])
+                        menu.tooltipText = L["Switch Spec %1 {%2}"](j, mainSpecs[j])
                         menu.tooltipOnButton = true
-                        menu.arg2 = i
+                        menu.arg2 = j
                         break
                     end
                 end
@@ -334,6 +334,9 @@ function GearUp:OnSpecChange(event, curr, prev)
             local name = self:GetEquipmentSetInfo(i)
             if name and string.match("@"..mainSpec:upper(), "^"..name:upper()) then
                 p(L["Spec changed {%1} (%2)"](mainSpec, points))
+                self:EquipSet(i)
+            elseif name and  string.match("@"..curr, "^"..name:sub(1,2)) then
+                p(L["Spec changed {%1} (%2)"](mainSpec.."("..curr..")", points))
                 self:EquipSet(i)
             end
         end
