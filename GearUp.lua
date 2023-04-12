@@ -136,8 +136,8 @@ function GearUp:GetEquipmentSetInfo(setID, colorize)
         if colorize and name then
             if numLost > 0 then
                 name = "|cffe55451"..name.."|r"
-            elseif (numItems - numEquipped) > 0 and (numItems - numEquipped) < 3 then
-                name = "|cfff0f010"..name.."|r"
+            --elseif (numItems - numEquipped) > 0 and (numItems - numEquipped) < 3 then
+            --    name = "|cfff0f010"..name.."|r"
             end
         end
         return name, isEquipped, numLost, numItems, numEquipped
