@@ -65,6 +65,7 @@ end
 
 function GearUp:OnInitialize()
     self:InitUI()
+    self:HookSaveFunc()
 
     -- Equipment check
     self.ticker = C_Timer.NewTicker(3, function()
@@ -127,6 +128,24 @@ function GearUp:InitUI()
     ui:SetScript("OnDragStop", function(s)
         s:StopMovingOrSizing()
     end)
+end
+
+function GearUp:HookSaveFunc()
+    self.originalSaveFunc = C_EquipmentSet.SaveEquipmentSet
+    C_EquipmentSet.SaveEquipmentSet = function(setID, icon)
+        C_EquipmentSet.IgnoreSlotForSave(INVSLOT_BODY)
+        C_EquipmentSet.IgnoreSlotForSave(INVSLOT_TABARD)
+        self.originalSaveFunc(setID, icon)
+        p(L["Save [%1]"](self:GetEquipmentSetInfo(setID)))
+    end
+    self.originalCreateFunc = C_EquipmentSet.CreateEquipmentSet
+    C_EquipmentSet.CreateEquipmentSet = function(setName, icon)
+        self.originalCreateFunc(setName, icon or GetInventoryItemTexture("player", INVSLOT_NECK))
+        -- IgnoreSlotForSave doesn't affect CreateEquipmentSet, so save again
+        self.currentSet = C_EquipmentSet.GetEquipmentSetID(setName)
+        C_EquipmentSet.SaveEquipmentSet(self.currentSet, icon)
+        --self:SaveEquipSet()
+    end
 end
 
 function GearUp:GetEquipmentSetInfo(setID, colorize)
@@ -193,18 +212,12 @@ end
 function GearUp:CreateEquipSet(setName)
     if setName then  -- Default is Neck icon
         C_EquipmentSet.CreateEquipmentSet(setName, GetInventoryItemTexture("player", INVSLOT_NECK))
-        -- IgnoreSlotForSave doesn't affect CreateEquipmentSet, so save again
-        self.currentSet = C_EquipmentSet.GetEquipmentSetID(setName)
-        self:SaveEquipSet()
     end
 end
 
 function GearUp:SaveEquipSet()
-    C_EquipmentSet.IgnoreSlotForSave(INVSLOT_BODY)
-    C_EquipmentSet.IgnoreSlotForSave(INVSLOT_TABARD)
     if self.currentSet then
         C_EquipmentSet.SaveEquipmentSet(self.currentSet)
-        p(L["Save [%1]"](self:GetEquipmentSetInfo(self.currentSet)))
     end
 end
 
