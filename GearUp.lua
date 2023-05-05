@@ -1,6 +1,7 @@
 local addonName, _ = ... 
 GearUp = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceEvent-3.0")
 GearUp.name = addonName
+local GetAddOnMetadata = GetAddOnMetadata or C_AddOns.GetAddOnMetadata
 GearUp.version = GetAddOnMetadata(addonName, "Version")
 
 local L = LibStub("AceLocale-3.0"):GetLocale(GearUp.name, true)
