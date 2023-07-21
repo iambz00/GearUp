@@ -67,6 +67,7 @@ end
 function GearUp:OnInitialize()
     self:InitUI()
     self:HookSaveFunc()
+    self:EnableItemPopupButton()
 
     -- Equipment check
     self.ticker = C_Timer.NewTicker(3, function()
@@ -147,6 +148,12 @@ function GearUp:HookSaveFunc()
         C_EquipmentSet.SaveEquipmentSet(self.currentSet, icon)
         --self:SaveEquipSet()
     end
+end
+
+function GearUp:EnableItemPopupButton()
+    -- Inspired by addon 'Enable Equipment Select'
+    PaperDollFrameItemPopoutButton_HideAll = function() end -- Do nothing
+    PaperDollFrameItemPopoutButton_ShowAll()
 end
 
 function GearUp:GetEquipmentSetInfo(setID, colorize)
