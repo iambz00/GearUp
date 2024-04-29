@@ -13,9 +13,6 @@ local function p(msg, ...) print(L["GearUpInfo"]..msg, ...) end
 local function pw(msg, ...) print(L["GearUpWarn"]..msg, ...) end
 local function pe(msg, ...) print(L["GearUpErr"]..msg, ...) end
 local InCombatLockdown = InCombatLockdown
-local GetNumSpecGroups = GetNumTalentGroups
-local SetSpecialization = SetActiveTalentGroup
-local GetNumSpecializations = GetNumTalentTabs
 
 StaticPopupDialogs["GEARUP_SAVE_EQUIPMENTSET"] = {
     text = "%s",
@@ -152,8 +149,8 @@ end
 
 function GearUp:EnableItemPopupButton()
     -- Inspired by addon 'Enable Equipment Select'
-    PaperDollFrameItemPopoutButton_HideAll = function() end -- Do nothing
-    PaperDollFrameItemPopoutButton_ShowAll()
+    EquipmentFlyoutPopoutButton_HideAll = function() end -- Do nothing
+    EquipmentFlyoutPopoutButton_ShowAll()
 end
 
 function GearUp:GetEquipmentSetInfo(setID, colorize)
@@ -180,7 +177,7 @@ function GearUp:DropMenu()
         })
     end
     local mainSpecs = {}
-    for i = 1, GetNumSpecGroups() do
+    for i = 1, GetNumTalentGroups() do
         mainSpecs[i] = self:GetMainSpec(i)
     end
     for i = 0, NUM_MAX_EQUIPMENT_SETS-1 do
@@ -194,13 +191,13 @@ function GearUp:DropMenu()
                 registerForRightClick = true,
                 func = function(_, setID, specID)   -- (self, arg1, arg2, checked)
                     if IsShiftKeyDown() and specID then
-                        SetSpecialization(specID)
+                        SetActiveTalentGroup(specID)
                     else
                         GearUp:EquipSet(setID)
                     end
                 end
             }
-            for j = 1, GetNumSpecGroups() do
+            for j = 1, GetNumTalentGroups() do
                 if mainSpecs[j] then
                     if string.match("@"..mainSpecs[j]:upper(), "^"..name:upper()) or string.match("@"..j, "^"..name:sub(1,2)) then
                         menu.tooltipTitle = name
@@ -367,9 +364,9 @@ end
 function GearUp:GetMainSpec(specGroup)
     local specs, maxPoints = {}, 0
     local mainSpec
-    for tabID = 1, GetNumSpecializations() do
-        local name, _, points = GetTalentTabInfo(tabID, _, _, specGroup)
-        specs[tabID] = {
+    for tabOrder = 1, GetNumTalentTabs() do
+        local _, name, _, _, points = GetTalentTabInfo(tabOrder, _, _, specGroup)
+        specs[tabOrder] = {
             name = name,
             points = points,
         }
