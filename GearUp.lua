@@ -214,6 +214,90 @@ function GearUp:DropMenu()
     EasyMenu(menuTable, self.ui.text, self.ui.text, 0, 8)
 end
 
+function GearUp:InitUIAlt()
+    if self.dropdown then return end
+    local dropdown = CreateFrame("DropdownButton", self.name.."DropDown", UIParent, "WowStyle1DropdownTemplate")
+    dropdown:SetDefaultText("GEARUPTEST")
+    dropdown:SetPoint("CENTER")
+--    dropdown:SetupMenu()
+--  dropdown:GenerateMenu() To Update Dropdowns
+    self.dropdown = dropdown
+--[[
+    ui:EnableMouse(true)
+    ui:SetMovable(true)
+    ui:SetResizable(true)
+    -- User resized override below width, height
+    ui:SetWidth(56)
+    ui:SetHeight(18)
+
+/run GearUp:InitUIAlt()
+
+
+]]
+    local function IsSelected(value)
+        local setID = value[1]
+        if setID ~= -1 then
+            local _, isEquipped = self:GetEquipmentSetInfo(setID, nil)
+            return isEquipped
+        end
+        return false
+    end
+    local function OnSelect(value)
+        local setID, specID = value[1], value[2]
+        if IsShiftKeyDown() and specID then
+            -- Change Spec
+            SetActiveTalentGroup(specID)
+        else
+            GearUp:EquipSet(setID)
+        end
+    end
+    local function Initializer(tooltipText, elem, desc, menu)
+        if tooltipText then
+            elem:SetTooltip(function(tooltip, _)
+                GameTooltip_AddNormalLine(tooltip, tooltipText)
+            end)
+        end
+        --return width, height
+        return 120, 24
+    end
+    local function DropdownGenerator(dropdownBtn, rootDescription)
+        if InCombatLockdown() then
+            local radio = rootDescription:CreateRadio("|cffe55451"..L["In combat"].."|r", IsSelected, OnSelect, {-1})
+            radio:AddInitializer(function(...) return Initializer(nil, ...) end)
+        end
+
+        local specs = {}
+        for i = 1, GetNumTalentGroups() do
+            specs[i] = self:GetMainSpec(i)
+        end
+
+        for i = 0, NUM_MAX_EQUIPMENT_SETS-1 do
+            local name, isEquipped = self:GetEquipmentSetInfo(i, true)
+            if name then
+                if isEquipped then  -- Improved Multi-selection
+                    selected = i
+                end
+                local specID, tooltipText
+                for j = 1, GetNumTalentGroups() do
+                    if specs[j] then
+                        if string.match("@"..specs[j]:upper(), "^"..name:upper()) or string.match("@"..j, "^"..name:sub(1,2)) then
+                            tooltipText = L["Switch Spec %1 {%2}"](j, specs[j])
+                            specID = j
+                            break
+                        end
+                    end
+                end
+                local radio = rootDescription:CreateRadio(name:gsub("@","|cff666666@|r"), IsSelected, OnSelect, {i, specID})
+                radio:AddInitializer(function(...) return Initializer(tooltipText, ...) end)
+                p("Dropdown Add: "..name:gsub("@","|cff666666@|r"))
+            end
+        end
+    end
+
+    dropdown:SetupMenu(DropdownGenerator)
+
+end
+
 function GearUp:CreateEquipSet(setName)
     if setName then  -- Default is Neck icon
         C_EquipmentSet.CreateEquipmentSet(setName, GetInventoryItemTexture("player", INVSLOT_NECK))
@@ -264,6 +348,10 @@ function GearUp:RefreshUI(text)
     if text then
         -- Blur '@'
         self.ui.text:SetText("|cffcccccc"..text:gsub("@","|cff666666@|r").."|r")
+    end
+    if self.dropdown then
+        -- 시간 지연 필요
+        self.dropdown:GenerateMenu()
     end
 end
 
