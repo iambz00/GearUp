@@ -168,50 +168,62 @@ function GearUp:GetEquipmentSetInfo(setID, colorize)
     end
 end
 
-function GearUp:DropMenu()
-    local menuTable = {}
+local function IsSelected(value)
+    local setID = value[1]
+    if setID ~= -1 then
+        local _, isEquipped = GearUp:GetEquipmentSetInfo(setID, nil)
+        return isEquipped
+    end
+    return false
+end
+local function OnSelect(value)
+    local setID, specID = value[1], value[2]
+    if IsShiftKeyDown() and specID then
+        -- Change Spec
+        SetActiveTalentGroup(specID)
+    else
+        GearUp:EquipSet(setID)
+    end
+end
+local function Initializer(tooltipText, _, desc, _)
+    if tooltipText then
+        desc:SetTooltip(function(tooltip, _)
+            GameTooltip_AddNormalLine(tooltip, tooltipText)
+        end)
+    end
+end
+local function DropdownGenerator(owner, rootDescription)
     if InCombatLockdown() then
-        table.insert(menuTable, {
-            text = "|cffe55451"..L["In combat"].."|r",
-            isTitle = true,
-        })
+        local radio = rootDescription:CreateRadio("|cffe55451"..L["In combat"].."|r", IsSelected, OnSelect, {-1})
+        radio:AddInitializer(function(...) return Initializer(nil, ...) end)
     end
-    local mainSpecs = {}
+
+    local specs = {}
     for i = 1, GetNumTalentGroups() do
-        mainSpecs[i] = self:GetMainSpec(i)
+        specs[i] = GearUp:GetMainSpec(i)
     end
+
     for i = 0, NUM_MAX_EQUIPMENT_SETS-1 do
-        local name, isEquipped = self:GetEquipmentSetInfo(i, true)
+        local name = GearUp:GetEquipmentSetInfo(i, true)
         if name then
-            local menu = {
-                text = name:gsub("@","|cff666666@|r"),
-                value = i,
-                checked = isEquipped,
-                arg1 = i,
-                registerForRightClick = true,
-                func = function(_, setID, specID)   -- (self, arg1, arg2, checked)
-                    if IsShiftKeyDown() and specID then
-                        SetActiveTalentGroup(specID)
-                    else
-                        GearUp:EquipSet(setID)
-                    end
-                end
-            }
+            local specID, tooltipText
             for j = 1, GetNumTalentGroups() do
-                if mainSpecs[j] then
-                    if string.match("@"..mainSpecs[j]:upper(), "^"..name:upper()) or string.match("@"..j, "^"..name:sub(1,2)) then
-                        menu.tooltipTitle = name
-                        menu.tooltipText = L["Switch Spec %1 {%2}"](j, mainSpecs[j])
-                        menu.tooltipOnButton = true
-                        menu.arg2 = j
+                if specs[j] then
+                    if string.match("@"..specs[j]:upper(), "^"..name:upper()) or string.match("@"..j, "^"..name:sub(1,2)) then
+                        tooltipText = L["Switch Spec %1 {%2}"](j, specs[j])
+                        specID = j
                         break
                     end
                 end
             end
-            table.insert(menuTable, menu)
+            local radio = rootDescription:CreateRadio(name:gsub("@","|cff666666@|r"), IsSelected, OnSelect, {i, specID})
+            radio:AddInitializer(function(...) return Initializer(tooltipText, ...) end)
         end
     end
-    EasyMenu(menuTable, self.ui.text, self.ui.text, 0, 8)
+end
+
+function GearUp:DropMenu()
+    MenuUtil.CreateContextMenu(self.ui, DropdownGenerator)
 end
 
 function GearUp:CreateEquipSet(setName)
