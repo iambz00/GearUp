@@ -185,12 +185,13 @@ local function OnSelect(value)
         GearUp:EquipSet(setID)
     end
 end
-local function Initializer(tooltipText, _, desc, _)
+local function Initializer(tooltipText, button, desc, _)
     if tooltipText then
         desc:SetTooltip(function(tooltip, _)
             GameTooltip_AddNormalLine(tooltip, tooltipText)
         end)
     end
+    button:SetScale(0.9)
 end
 local function DropdownGenerator(owner, rootDescription)
     if InCombatLockdown() then
