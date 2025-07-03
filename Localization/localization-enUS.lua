@@ -27,7 +27,7 @@ L["[%1] Doesn't exist"]     = function(setName) return "["..setName.."] Doesn't 
 
 L["Create set"]             = "Create new equipment set"
 L["Save [%1]"]              = function(setName) return "Save ["..setName.."]" end
-L["Spec changed {%1} (%2)"] = function(specName, points) return "Detected spec switch {"..specName.."} ("..points.." points)" end
+L["Spec changed {%1}"]      = function(specName, points) return "Detected spec switch {"..specName.."}" end
 L["Switch Spec %1 {%2}"]    = function(specID, specName) return "Hold Shift to switch Spec "..specID.." {"..specName.."}" end
 
 L["Floating UI resized to"] = function(width, height) return "Floating UI resized to "..width.."x"..height end

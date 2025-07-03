@@ -1,11 +1,10 @@
-## Interface: 40402
+## Interface: 50500
 ## Title: GearUp
 ## Author: Upne
-## Version: 4.4.2.1
+## Version: 1.7.0
 ## Notes: Light equipment set manager
 ## Notes-koKR: 장비관리자 쉬운 사용
 ## OptionalDeps: Ace3
-## X-Curse-Project-ID: 714247
 
 #@no-lib-strip@
 Libs\LibStub\LibStub.lua

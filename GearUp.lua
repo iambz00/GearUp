@@ -179,8 +179,11 @@ end
 local function OnSelect(value)
     local setID, specID = value[1], value[2]
     if IsShiftKeyDown() and specID then
-        -- Change Spec
-        SetActiveTalentGroup(specID)
+        if specID == C_SpecializationInfo.GetActiveSpecGroup() then
+            GearUp:EquipSet(setID)
+        else
+            C_SpecializationInfo.SetActiveSpecGroup(specID)
+        end
     else
         GearUp:EquipSet(setID)
     end
@@ -200,15 +203,15 @@ local function DropdownGenerator(owner, rootDescription)
     end
 
     local specs = {}
-    for i = 1, GetNumTalentGroups() do
-        specs[i] = GearUp:GetMainSpec(i)
+    for i = 1, GetNumSpecGroups() do
+        specs[i] = GearUp:GetSpecName(i)
     end
 
     for i = 0, NUM_MAX_EQUIPMENT_SETS-1 do
         local name = GearUp:GetEquipmentSetInfo(i, true)
         if name then
             local specID, tooltipText
-            for j = 1, GetNumTalentGroups() do
+            for j = 1, GetNumSpecGroups() do
                 if specs[j] then
                     if string.match("@"..specs[j]:upper(), "^"..name:upper()) or string.match("@"..j, "^"..name:sub(1,2)) then
                         tooltipText = L["Switch Spec %1 {%2}"](j, specs[j])
@@ -261,7 +264,6 @@ function GearUp:OnSwapFinish(event, success, setID)
     else
         pe(L["[%1] Failed"](setName))
     end
-    SpellBookFrame_PlayOpenSound()
 end
 
 function GearUp:OnEquipSetChange()
@@ -359,34 +361,24 @@ function GearUp:EquipmentCheck()
 end
 
 function GearUp:OnSpecChange(event, curr, prev)
-    local mainSpec, points = self:GetMainSpec(curr)
-    if mainSpec then
+    local specGroup = C_SpecializationInfo.GetActiveSpecGroup()
+    local specName = self:GetSpecName(specGroup)
+    if specName then
         for i = 0, NUM_MAX_EQUIPMENT_SETS-1 do
             local name = self:GetEquipmentSetInfo(i)
-            if name and string.match("@"..mainSpec:upper(), "^"..name:upper()) then
-                p(L["Spec changed {%1} (%2)"](mainSpec, points))
+            if name and string.match("@"..specName:upper(), "^"..name:upper()) then
+                p(L["Spec changed {%1}"](specName))
                 self:EquipSet(i)
             elseif name and  string.match("@"..curr, "^"..name:sub(1,2)) then
-                p(L["Spec changed {%1} (%2)"](mainSpec.."("..curr..")", points))
+                p(L["Spec changed {%1}"](specName.."("..curr..")"))
                 self:EquipSet(i)
             end
         end
     end
 end
 
-function GearUp:GetMainSpec(specGroup)
-    local specs, maxPoints = {}, 0
-    local mainSpec
-    for tabOrder = 1, GetNumTalentTabs() do
-        local _, name, _, _, points = GetTalentTabInfo(tabOrder, _, _, specGroup)
-        specs[tabOrder] = {
-            name = name,
-            points = points,
-        }
-        if points > maxPoints then
-            mainSpec = name
-            maxPoints = points
-        end
-    end
-    return mainSpec, maxPoints
+function GearUp:GetSpecName(specGroup)
+    local specialization = C_SpecializationInfo.GetSpecialization(false, false, specGroup)
+    local _, specName = C_SpecializationInfo.GetSpecializationInfo(specialization)
+    return specName
 end
